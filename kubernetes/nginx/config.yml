@@ -1,0 +1,40 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: nginx-config
+data:
+  nginx.conf: |
+    events {
+      # determines our concurrency, will need tuning
+        worker_connections 5000;
+    }
+
+    http {
+        proxy_cache_path /var/cache/nginx levels=1:2 keys_zone=my_cache:10m max_size=10g
+                        inactive=60m use_temp_path=off;
+
+        server {
+            listen 80;
+
+            add_header X-Nginx-Cache-Status $upstream_cache_status;
+
+            location / {
+                proxy_pass http://gcs-handler:8080;
+                proxy_cache my_cache;
+                proxy_cache_revalidate on;
+                proxy_cache_min_uses 1;
+                proxy_cache_use_stale error timeout updating http_500 http_502 http_503 http_504;
+                proxy_cache_lock on;
+
+                # Ignore headers that might prevent caching
+                proxy_ignore_headers "Cache-Control" "Expires" "Set-Cookie";
+                proxy_ignore_headers X-Accel-Expires;
+
+                # Default cache time
+                proxy_cache_valid 200 302 60m; # Cache successful and redirect responses for 60 minutes
+                proxy_cache_valid 404 1m;      # Cache 404 responses for 1 minute
+                proxy_cache_valid any 30m;     # Cache all other responses for 30 minutes
+                proxy_cache_key "$host$request_uri";
+            }
+        }
+    }

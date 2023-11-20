@@ -1,0 +1,31 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: gcs-handler
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: gcs-handler
+  template:
+    metadata:
+      labels:
+        app: gcs-handler
+    spec:
+      containers:
+      - name: gcs-handler
+        image: gcs-handler:latest
+        env:
+        - name: GCS_BUCKET_NAME
+          value: "gcs-caching-proxy-test"
+        # Mount service account from a secret or ConfigMap
+        - name: GOOGLE_APPLICATION_CREDENTIALS
+          value: /etc/gcs-key/key.json
+        volumeMounts:
+        - name: gcs-key
+          mountPath: /etc/gcs-key
+          readOnly: true
+      volumes:
+      - name: gcs-key
+        secret:
+          secretName: gcs-service-account

@@ -1,0 +1,21 @@
+apiVersion: skaffold/v4beta8
+kind: Config
+metadata:
+  name: gcs-caching-proxy
+build:
+  artifacts:
+    - image: gcs-handler
+      context: cache-service/gcs-handler
+      docker:
+        dockerfile: Dockerfile
+    - image: nginx
+      context: cache-service/nginx
+      docker:
+        dockerfile: Dockerfile
+manifests:
+  rawYaml:
+    - kubernetes/gcs-handler/deployment.yml
+    - kubernetes/gcs-handler/service.yml
+    - kubernetes/nginx/config.yml
+    - kubernetes/nginx/deployment.yml
+    - kubernetes/nginx/service.yml
