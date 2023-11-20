@@ -1,9 +1,12 @@
 package main
 
 import (
+	"context"
+	"fmt"
 	"io"
 	"log"
 	"net/http"
+	"os"
 	"strconv"
 	"time"
 
@@ -12,7 +15,27 @@ import (
 	"github.com/mansoormajeed/gcs-caching-proxy/cache-service/gcs-handler/pkg/gcs"
 )
 
+var bucketName string
+
 func main() {
+
+	bucketName = os.Getenv("GCS_BUCKET_NAME")
+	if bucketName == "" {
+		log.Fatal("GCS_BUCKET_NAME environment variable is not set")
+	}
+
+	// Authenticate with GCS, this is only for startup to ensure that
+	// we have access to the bucket
+	ctx := context.Background()
+	client, err := storage.NewClient(ctx)
+	if err != nil {
+		log.Fatalf("Failed to create GCS client: %v", err)
+	}
+	defer client.Close()
+	// Confirm bucket exists
+	if _, err := client.Bucket(bucketName).Attrs(ctx); err != nil {
+		log.Fatalf("Failed to get bucket %v: %v", bucketName, err)
+	}
 
 	r := mux.NewRouter()
 
@@ -27,7 +50,6 @@ func main() {
 	// Set up HTTP server and routes
 	http.HandleFunc("/health", healthCheck)
 	http.HandleFunc("/", requestHandler)
-
 }
 
 func requestHandler(w http.ResponseWriter, r *http.Request) {
@@ -35,8 +57,14 @@ func requestHandler(w http.ResponseWriter, r *http.Request) {
 
 	vars := mux.Vars(r)
 
-	bucket := vars["bucket"]
+	requestedBucket := vars["bucket"]
 	object := vars["object"]
+
+	// Do not allow bucket names that do not match the configured bucket
+	if requestedBucket != bucketName {
+		http.Error(w, fmt.Sprintf("[%s] Unknown bucket requested", requestedBucket), http.StatusNotFound)
+		return
+	}
 
 	// Create a GCS client
 	client, err := gcs.NewClient(ctx)
@@ -47,7 +75,7 @@ func requestHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	defer client.Close()
 
-	reader, err := gcs.ReadFile(ctx, client, bucket, object)
+	reader, err := gcs.ReadFile(ctx, client, bucketName, object)
 	if err != nil {
 
 		log.Println("error reading file from GCS:", err)
@@ -64,7 +92,7 @@ func requestHandler(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	attrs, err := gcs.GetObjectAttrs(ctx, client, bucket, object)
+	attrs, err := gcs.GetObjectAttrs(ctx, client, bucketName, object)
 	if err != nil {
 		log.Printf("error getting object attributes: %v", err)
 		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
