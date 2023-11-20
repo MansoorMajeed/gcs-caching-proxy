@@ -19,6 +19,8 @@ func requestHandler(w http.ResponseWriter, r *http.Request) {
 	requestedBucket := vars["bucket"]
 	object := vars["object"]
 
+	log.Printf("[gcs] received request for [%s/%s]", requestedBucket, object)
+
 	// Do not allow bucket names that do not match the configured bucket
 	if requestedBucket != bucketName {
 		http.Error(w, fmt.Sprintf("[%s] Unknown bucket requested", requestedBucket), http.StatusNotFound)

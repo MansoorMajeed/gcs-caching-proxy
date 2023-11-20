@@ -1,0 +1,19 @@
+version: '3.8'
+services:
+  gcs-handler:
+    build:
+      context: ./cache-service/gcs-handler/
+      dockerfile: Dockerfile
+    environment:
+      - GCS_BUCKET_NAME=gcs-caching-proxy-test
+      - GOOGLE_APPLICATION_CREDENTIALS=/tmp/keys/service-account-file.json
+    volumes:
+      - /Users/mansoora/Documents/gcs-caching-test-sa.json:/tmp/keys/service-account-file.json
+  nginx:
+    build:
+      context: ./cache-service/nginx
+      dockerfile: Dockerfile
+    ports:
+      - "8081:80"
+    depends_on:
+      - gcs-handler
