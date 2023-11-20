@@ -3,6 +3,10 @@ kind: Service
 metadata:
   name: nginx-service
 spec:
+  # clusterIP: None -> Headless service,
+  # this is needed for haproxy consistent hashing
+  # we will add each pods to the haproxy backend
+  # clusterIP: None
   selector:
     app: nginx
   ports:

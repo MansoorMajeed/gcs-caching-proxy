@@ -1,0 +1,28 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: haproxy-config
+data:
+  haproxy.cfg: |
+    global
+      log stdout format raw local0
+
+    defaults
+      log     global
+      option  httplog
+      option  dontlognull
+      timeout connect 5000ms
+      timeout client  50000ms
+      timeout server  50000ms
+
+    frontend http_front
+      bind *:80
+      default_backend http_back
+
+    backend http_back
+      balance uri
+      hash-type consistent
+      server nginx-0 nginx-0.nginx-service.default.svc.cluster.local:80 check
+      server nginx-1 nginx-1.nginx-service.default.svc.cluster.local:80 check
+    
+    

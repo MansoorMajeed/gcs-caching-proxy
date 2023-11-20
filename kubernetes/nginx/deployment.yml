@@ -1,8 +1,9 @@
 apiVersion: apps/v1
-kind: Deployment
+kind: StatefulSet
 metadata:
   name: nginx
 spec:
+  serviceName: "nginx-service"
   replicas: 2
   selector:
     matchLabels:

@@ -15,3 +15,6 @@ manifests:
     - kubernetes/nginx/config.yml
     - kubernetes/nginx/deployment.yml
     - kubernetes/nginx/service.yml
+    # - kubernetes/haproxy/config.yml
+    # - kubernetes/haproxy/deployment.yml
+    # - kubernetes/haproxy/service.yml  
