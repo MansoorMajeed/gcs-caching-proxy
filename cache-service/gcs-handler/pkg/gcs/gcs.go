@@ -16,3 +16,8 @@ func NewClient(ctx context.Context) (*storage.Client, error) {
 func ReadFile(ctx context.Context, client *storage.Client, bucket, object string) (io.Reader, error) {
 	return client.Bucket(bucket).Object(object).NewReader(ctx)
 }
+
+// GetObjectAttrs gets the attributes of the GCS object
+func GetObjectAttrs(ctx context.Context, client *storage.Client, bucket, object string) (*storage.ObjectAttrs, error) {
+	return client.Bucket(bucket).Object(object).Attrs(ctx)
+}
