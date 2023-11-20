@@ -31,9 +31,9 @@ data:
                 proxy_ignore_headers X-Accel-Expires;
 
                 # Default cache time
-                proxy_cache_valid 200 302 60m; # Cache successful and redirect responses for 60 minutes
+                proxy_cache_valid 200 60m;     # Cache 200 for 60 minutes
                 proxy_cache_valid 404 1m;      # Cache 404 responses for 1 minute
-                proxy_cache_valid any 30m;     # Cache all other responses for 30 minutes
+                proxy_cache_valid any 10s;     # Cache all other responses for 10s
                 proxy_cache_key "$host$request_uri";
             }
         }

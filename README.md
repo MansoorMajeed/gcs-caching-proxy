@@ -4,7 +4,13 @@
 
 ### Setup MiniKube
 
+Go [HERE](https://minikube.sigs.k8s.io/docs/start/)
+
 ### Install Skaffold
+
+```
+brew install skaffold
+```
 
 ### Creating the GCS secret
 
@@ -63,3 +69,24 @@ curl -vso /dev/null 'localhost:8081/gcs-caching-proxy-test/hello.txt?q=1'
 < Last-Modified: Mon, 20 Nov 2023 01:08:13 GMT
 < X-Nginx-Cache-Status: HIT
 ```
+
+## Cache Config
+
+All caching is handled by Nginx, no reinventing caching.
+Check the config [HERE](./kubernetes/nginx/config.yml)
+
+
+These are important, must change to fit your needs
+```
+proxy_cache_valid 200 60m;     # Cache 200 for 60 minutes
+proxy_cache_valid 404 1m;      # Cache 404 responses for 1 minute
+proxy_cache_valid any 10s;     # Cache all other responses for 10s
+proxy_cache_key "$host$request_uri";
+```
+
+
+## TODO
+
+Consistent hashing with Bounded loads using Haproxy, which would increase the cache hit ratio.
+We will add Nginx pods individually to the haproxy as backends instead of using a service, and
+enable consistent hashing, that means the request to same URL will always go to the same pod.
