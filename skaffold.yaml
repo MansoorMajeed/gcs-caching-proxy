@@ -8,10 +8,6 @@ build:
       context: cache-service/gcs-handler
       docker:
         dockerfile: Dockerfile
-    - image: nginx
-      context: cache-service/nginx
-      docker:
-        dockerfile: Dockerfile
 manifests:
   rawYaml:
     - kubernetes/gcs-handler/deployment.yml
