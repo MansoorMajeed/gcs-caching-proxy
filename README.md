@@ -90,3 +90,5 @@ proxy_cache_key "$host$request_uri";
 Consistent hashing with Bounded loads using Haproxy, which would increase the cache hit ratio.
 We will add Nginx pods individually to the haproxy as backends instead of using a service, and
 enable consistent hashing, that means the request to same URL will always go to the same pod.
+
+https://docs.haproxy.org/2.8/configuration.html#4.2-hash-balance-factor
