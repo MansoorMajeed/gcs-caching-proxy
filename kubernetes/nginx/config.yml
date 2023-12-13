@@ -17,6 +17,7 @@ data:
             listen 80;
 
             add_header X-Nginx-Cache-Status $upstream_cache_status;
+            add_header X-Nginx-Server $hostname;
 
             location / {
                 proxy_pass http://gcs-handler:8080;

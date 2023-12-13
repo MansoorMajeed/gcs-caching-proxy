@@ -12,9 +12,14 @@ spec:
       labels:
         app: haproxy
     spec:
+      initContainers:
+      - name: init-haproxy
+        image: haproxy:latest
+        command: ["sleep", "5"]
       containers:
       - name: haproxy
         image: haproxy:latest
+        # command: ["tail", "-f", "/dev/null"]
         ports:
         - containerPort: 80
         volumeMounts:

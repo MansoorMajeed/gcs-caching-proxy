@@ -22,7 +22,10 @@ data:
     backend http_back
       balance uri
       hash-type consistent
+      mode http
+
       server nginx-0 nginx-0.nginx-service.default.svc.cluster.local:80 check
       server nginx-1 nginx-1.nginx-service.default.svc.cluster.local:80 check
-    
+      option httpchk GET /health
+
     
