@@ -21,11 +21,24 @@ data:
 
     backend http_back
       balance uri
+
+      http-response set-header X-HAProxy-Hostname %[env(HOSTNAME)]
+
       hash-type consistent
+
+      # Prevent Hotspots with consistent hashing
+      # <factor> is a percentage greater than 100. For example, if <factor> is 150,
+      # then no server will be allowed to have a load more than 1.5 times the average.
+      # If server weights are used, they will be respected.
+      
+      hash-balance-factor 150
+
       mode http
 
       server nginx-0 nginx-0.nginx-service.default.svc.cluster.local:80 check
       server nginx-1 nginx-1.nginx-service.default.svc.cluster.local:80 check
-      option httpchk GET /health
+      server nginx-2 nginx-2.nginx-service.default.svc.cluster.local:80 check
+      server nginx-3 nginx-3.nginx-service.default.svc.cluster.local:80 check
+      server nginx-4 nginx-4.nginx-service.default.svc.cluster.local:80 check
 
-    
+      option httpchk GET /health

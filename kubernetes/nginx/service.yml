@@ -6,7 +6,7 @@ spec:
   # clusterIP: None -> Headless service,
   # this is needed for haproxy consistent hashing
   # we will add each pods to the haproxy backend
-  # clusterIP: None
+  clusterIP: None
   selector:
     app: nginx
   ports:
