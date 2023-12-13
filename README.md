@@ -27,47 +27,39 @@ kubectl create secret generic gcs-service-account \
 ### Bringing it up
 
 ```
-skaffold dev --port-forward
+skaffold dev
 ```
 
 
 ## In Action
 
-First request, `X-Nginx-Cache-Status: MISS`
+First request, `X-Nginx-Cache-Status: MISS`, note the `x-nginx-server`
 
 ```
-curl -vso /dev/null 'localhost:8081/gcs-caching-proxy-test/hello.txt?q=1'
-
-----snip----
+➜  ~ curl -v  localhost:8000/gcs-caching-proxy-test/test1.txt
 
 < HTTP/1.1 200 OK
-< Server: nginx/1.25.3
-< Date: Mon, 20 Nov 2023 15:46:31 GMT
-< Content-Type: text/plain
-< Content-Length: 6
-< Connection: keep-alive
-< Etag: CPTsvPax0YIDEAE=
-< Last-Modified: Mon, 20 Nov 2023 01:08:13 GMT
-< X-Nginx-Cache-Status: MISS
-
-```
-
-Subsequent Request is cached by Nginx
-
-```
-curl -vso /dev/null 'localhost:8081/gcs-caching-proxy-test/hello.txt?q=1'
-
 ---snip---
+< x-nginx-cache-status: MISS
+< x-nginx-server: nginx-4
+< x-haproxy-hostname: haproxy-55679b597f-9vwxs
+<
+test1
+```
+
+Subsequent Request is cached by Nginx, we can also see that haproxy made the request to the same nginx backend, using consistent hashing
+
+```
+➜  ~ curl -v  localhost:8000/gcs-caching-proxy-test/test1.txt
 
 < HTTP/1.1 200 OK
-< Server: nginx/1.25.3
-< Date: Mon, 20 Nov 2023 15:46:33 GMT
-< Content-Type: text/plain
-< Content-Length: 6
-< Connection: keep-alive
-< Etag: CPTsvPax0YIDEAE=
-< Last-Modified: Mon, 20 Nov 2023 01:08:13 GMT
-< X-Nginx-Cache-Status: HIT
+---snio---
+< x-nginx-cache-status: HIT
+< x-nginx-server: nginx-4
+< x-haproxy-hostname: haproxy-55679b597f-9vwxs
+<
+test1
+➜  ~
 ```
 
 ## Cache Config
