@@ -18,3 +18,11 @@ manifests:
     - kubernetes/haproxy/config.yml
     - kubernetes/haproxy/deployment.yml
     - kubernetes/haproxy/service.yml  
+
+portForward:
+  - resourceType: service
+    resourceName: haproxy-service
+    namespace: default
+    port: 80
+    localPort: 8000
+    address: localhost

@@ -1,1 +1,1 @@
-This does not work yet
+Use consistent hashing with bounded loads

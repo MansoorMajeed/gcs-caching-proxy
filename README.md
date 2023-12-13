@@ -85,10 +85,20 @@ proxy_cache_key "$host$request_uri";
 ```
 
 
-## TODO
+## Haproxy Consistent Hashing with Bounded Loads
 
 Consistent hashing with Bounded loads using Haproxy, which would increase the cache hit ratio.
 We will add Nginx pods individually to the haproxy as backends instead of using a service, and
 enable consistent hashing, that means the request to same URL will always go to the same pod.
 
-https://docs.haproxy.org/2.8/configuration.html#4.2-hash-balance-factor
+Check the config [HERE](./kubernetes/haproxy/config.yml)
+
+Here is the relevant part the does consistent hashing.
+```
+hash-type consistent
+hash-balance-factor 150
+```
+
+> `factor` is a percentage greater than 100. For example, if `factor`` is 150,
+> then no server will be allowed to have a load more than 1.5 times the average.
+> If server weights are used, they will be respected.
