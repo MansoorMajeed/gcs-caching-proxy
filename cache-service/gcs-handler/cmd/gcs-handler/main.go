@@ -36,7 +36,6 @@ func main() {
 
 	r := mux.NewRouter()
 
-	// Define your routes
 	r.HandleFunc("/{bucket}/{object:.*}", requestHandler)
 	r.HandleFunc("/health", healthCheck)
 

@@ -22,6 +22,9 @@ func requestHandler(w http.ResponseWriter, r *http.Request) {
 	log.Printf("[gcs] received request for [%s/%s]", requestedBucket, object)
 
 	// Do not allow bucket names that do not match the configured bucket
+    // We could obviously hardcode the bucket as well, but I think this is more
+    // flexible. We can use the same credentials with multiple buckets if we
+    // need.
 	if requestedBucket != bucketName {
 		http.Error(w, fmt.Sprintf("[%s] Unknown bucket requested", requestedBucket), http.StatusNotFound)
 		return
