@@ -1,6 +1,27 @@
 # GCS Proxy with Caching
 
-## Local Setup
+## Local Setup -  Without Kubernetes
+
+### gcs-handler
+
+This is the service that reads from GCS.
+
+To set it up without Kubernetes, you can build the `gcs-handler` go service from [HERE](./cache-service/gcs-handler/)
+
+To build a binary directly, just do `go build`.
+
+There is a `Dockerfile`, so you just gotta do `docker build` in that directory for the image, if you want to use Docker.
+
+### Nginx
+
+Nginx does all the caching. You can run your own Nginx however you like. Get the config from [HERE](./kubernetes/nginx/config.yml) and change it to your needs.
+
+### Haproxy
+
+Haproxy is completely optional, but is useful if you want to run the whole thing at scale and want
+consistent hashing.
+
+## Local Setup - With Skaffold and Kubernetes
 
 ### Setup MiniKube
 
