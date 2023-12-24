@@ -1,6 +1,7 @@
 package main
 
 import (
+	"errors"
 	"fmt"
 	"io"
 	"log"
@@ -22,9 +23,8 @@ func requestHandler(w http.ResponseWriter, r *http.Request) {
 	log.Printf("[gcs] received request for [%s/%s]", requestedBucket, object)
 
 	// Do not allow bucket names that do not match the configured bucket
-    // We could obviously hardcode the bucket as well, but I think this is more
-    // flexible. We can use the same credentials with multiple buckets if we
-    // need.
+	// We could obviously hardcode the bucket as well, but I think this is more
+	// flexible. We can use the same credentials with multiple buckets if we need.
 	if requestedBucket != bucketName {
 		http.Error(w, fmt.Sprintf("[%s] Unknown bucket requested", requestedBucket), http.StatusNotFound)
 		return
@@ -35,10 +35,10 @@ func requestHandler(w http.ResponseWriter, r *http.Request) {
 
 		log.Println("error reading file from GCS:", err)
 
-		if err == storage.ErrObjectNotExist {
+		if errors.Is(err, storage.ErrObjectNotExist) {
 			http.Error(w, err.Error(), http.StatusNotFound)
 			return
-		} else if err == storage.ErrBucketNotExist {
+		} else if errors.Is(err, storage.ErrBucketNotExist) {
 			http.Error(w, err.Error(), http.StatusNotFound)
 			return
 		} else {
@@ -56,11 +56,21 @@ func requestHandler(w http.ResponseWriter, r *http.Request) {
 
 	// Set headers based on object attributes
 	setHeaders(w, attrs)
-	// Stream the file back to the client
-	io.Copy(w, reader)
+
+	_, err = io.Copy(w, reader)
+	if err != nil {
+		log.Printf("error streaming file to client: %v", err)
+		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		return
+	}
 }
 
 func healthCheck(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "text/plain")
-	io.WriteString(w, "Happy and Healthy\n")
+	_, err := io.WriteString(w, "Happy and Healthy\n")
+	if err != nil {
+		log.Printf("error writing health check response: %v", err)
+		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		return
+	}
 }
