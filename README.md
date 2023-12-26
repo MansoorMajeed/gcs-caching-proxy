@@ -1,4 +1,41 @@
-# GCS Proxy with Caching
+# GCS Proxy with Consistent Hash Caching
+
+This is a simple Google Cloud Storage proxy with caching along with consistent hashing built with Kubernetes in mind.
+
+## Give me TL;DR
+
+- You use Google Cloud Storage (GCS) to store files which are read by some of your service(s)
+- They retrieve from GCS quite a lot and the egress cost is getting out of control
+- You can introduce a local disk cache that will help a lot, depending on how distributed your services are.
+    - For example, if you use Kubernetes and your service have 50 pods, even if you cache the objects in local disk, there is only 1/50 chance you hit that for every request.
+- With the gcs-caching-proxy, you can make sure that once an object is cached, it will always (almost) be served from the cache until the cache expires
+    - This is made possible via consistent hashing using Haproxy. Read more about it [HERE](https://docs.haproxy.org/2.8/configuration.html#hash-type)
+    - Nginx does all the caching, we are not re-inventing caching. 
+- Works great with Kubernetes, works without Kubernetes too, you just need to be able to run Haproxy and Nginx along with the Binary of the gcs-handler
+
+### Some Diagrams
+
+#### Without the proxy
+
+Your service pods/VMs are reading directly from GCS. You may have some sort of disk caching, this is fine for the most part unless the number of pods/VMs
+grow to a large number, then you are looking at a lot more retrieval from GCS causing a ton more egress cost
+
+![image](https://github.com/MansoorMajeed/gcs-caching-proxy/assets/12676196/c5240b32-b4d3-4392-8933-18cbc9d2fd2d)
+
+#### With the proxy and caching setup
+
+- You can either run the `gcs-handler` (the proxy that reads from GCS) as a sidecar or as a separate service
+- Nginx uses the `gcs-handler` as the upstream. Check the config [HERE](./kubernetes/nginx/config.yml)
+- Haproxy uses the Nginx pods addresses as the backend. Check the Haproxy config [HERE](./kubernetes/haproxy/config.yml)
+    - The reason why it uses the pods address directly is for consistent hashing. If you don't want to use consistent hashing, you can just use a service in front of Nginx
+
+![image](https://github.com/MansoorMajeed/gcs-caching-proxy/assets/12676196/c260f900-1835-4312-9423-8ffd05527900)
+
+## Ok, but why?
+
+Because $$$$$
+
+You don't need any of these if your GCS egress costs are not a problem. But as the scale goes up, so does the egress cost.
 
 ## Local Setup -  Without Kubernetes
 
