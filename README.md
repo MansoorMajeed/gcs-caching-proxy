@@ -152,3 +152,9 @@ hash-balance-factor 150
 > `factor` is a percentage greater than 100. For example, if `factor`` is 150,
 > then no server will be allowed to have a load more than 1.5 times the average.
 > If server weights are used, they will be respected.
+
+
+## Cache Purging
+
+Purging needs to be done on Nginx, should be pretty straight forward to do depending on how you plan on using it.
+Nginx has some docs [HERE](https://docs.nginx.com/nginx/admin-guide/content-cache/content-caching/#purging-content-from-the-cache)
