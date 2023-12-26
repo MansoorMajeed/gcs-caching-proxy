@@ -13,6 +13,10 @@ This is a simple Google Cloud Storage proxy with caching along with consistent h
     - Nginx does all the caching, we are not re-inventing caching. 
 - Works great with Kubernetes, works without Kubernetes too, you just need to be able to run Haproxy and Nginx along with the Binary of the gcs-handler
 
+### Quick note about the type of objects in GCS
+
+If you have fast changing objects in the bucket, this may not be for you. This is more suitable for large volume, low changing files such as media files.
+
 ### Some Diagrams
 
 #### Without the proxy
